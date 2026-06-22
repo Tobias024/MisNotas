@@ -3,16 +3,618 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TPO-DA1</title>
+<title>Guía de Patrones · ADOO / Puppies · v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  body { font-family: -apple-system, sans-serif; max-width: 720px; margin: 32px auto; padding: 0 16px; color: #222; line-height: 1.55; }
-  h1 { margin-top: 0; }
+  :root{
+    --paper:#F4F6FB;--card:#FFFFFF;--ink:#16203A;--ink-soft:#475068;--line:#D7DCE8;
+    --accent:#4F46E5;--accent-2:#7C3AED;--accent-wash:#EEF0FE;
+    --ok:#1f7a46;--ok-wash:#E7F3EE;--warn:#B45309;--warn-wash:#FEF3E2;
+    --uml-iface:#f8cecc;--uml-iface-stroke:#b85450;
+    --uml-concrete:#d5e8d4;--uml-concrete-stroke:#4a7a48;
+    --uml-abstract:#dae8fc;--uml-abstract-stroke:#3a6ea5;
+    --uml-enum:#fff2cc;--uml-enum-stroke:#caa83a;
+    --uml-ctx:#e1d5e7;--uml-ctx-stroke:#8a5a9a;
+    --uml-ext:#f0f0f0;--uml-ext-stroke:#777;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 22px}
+
+  header.top{padding:54px 0 30px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:500}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,5vw,46px);line-height:1.04;margin:.35em 0 .25em;letter-spacing:-.01em}
+  .lede{color:var(--ink-soft);font-size:17px;max-width:66ch;margin:0}
+  .meta{margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink-soft)}
+  .meta b{color:var(--ink);font-weight:500}
+
+  .secthead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:8px 0 18px;padding:18px 0 0}
+  .secthead .big{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:var(--accent);padding:5px 12px;border-radius:8px}
+  .secthead .big.green{background:var(--ok)}
+  .secthead p{margin:0;color:var(--ink-soft);font-size:14.5px;max-width:60ch}
+
+  .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:22px 0 4px}
+  .map a{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 15px;color:var(--ink);transition:.15s}
+  .map a:hover{border-color:var(--accent);box-shadow:0 4px 16px -10px var(--accent)}
+  .map .k{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.08em}
+  .map .n{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;margin-top:2px}
+  .map .d{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+
+  section{padding:40px 0;border-bottom:1px solid var(--line)}
+  .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--accent-wash);color:var(--accent);font-weight:500;border:1px solid #DCDDFB}
+  .tag.struct{background:#E7F3EE;color:#1f6b46;border-color:#CBE6D8}
+  .tag.creac{background:#FBEFE2;color:#9a5a1a;border-color:#F0D9BF}
+  .tag.arch{background:#EAEFF7;color:#3a5a8a;border-color:#CFDCEE}
+  h2{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(23px,3.5vw,31px);margin:12px 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 16px;font-style:italic}
+  h3{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin:24px 0 8px}
+  p{margin:.5em 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  ul.tight{margin:.4em 0;padding-left:1.1em}
+  ul.tight li{margin:.28em 0}
+
+  .fig{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 8px;margin:10px 0}
+  .fig svg{width:100%;height:auto;display:block}
+  .fig .cap{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-soft);padding:6px 4px 2px;text-align:center}
+
+  .note{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:13px 16px;margin:14px 0;font-size:14.5px}
+  .note.warn{border-left-color:var(--warn);background:var(--warn-wash)}
+  .note.ok{border-left-color:var(--ok);background:var(--ok-wash)}
+  .note .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600;display:block;margin-bottom:3px}
+  .note.warn .lbl{color:var(--warn)} .note.ok .lbl{color:var(--ok)}
+  code{font-family:'JetBrains Mono',monospace;font-size:.88em;background:#EEF1F7;padding:1px 5px;border-radius:5px;color:#2c3552}
+
+  .verdict{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;margin:4px 0}
+  .verdict.yes{background:var(--ok-wash);color:var(--ok)}
+  .verdict.maybe{background:var(--warn-wash);color:var(--warn)}
+  .verdict.no{background:#F3F0F7;color:#6a4a8a}
+
+  .tbl{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .tbl th,.tbl td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  .tbl th{font-family:'Space Grotesk',sans-serif;background:var(--accent-wash);color:var(--ink);font-weight:600;font-size:13px}
+  .tbl td:first-child{font-weight:600;color:var(--accent)}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl .y{color:var(--ok);font-weight:700} .tbl .n{color:#9aa0b0}
+
+  footer{padding:40px 0 70px;color:var(--ink-soft);font-size:13.5px}
+  footer b{color:var(--ink)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .legend span{font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:4px 9px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft)}
+  .legend b{color:var(--ink);font-weight:600}
 </style>
 </head>
 <body>
 
-<h1>TPO-DA1</h1>
-<p>Escribí HTML aquí.</p>
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">ADOO / PDS · UADE · Guía de estudio v2</div>
+    <h1>Patrones de la cursada,<br>aplicados a Puppies</h1>
+    <p class="lede">Dos partes. Primero los cuatro patrones que <b>ya usaste</b> en el TP (Strategy, Adapter, Observer, State), con la terminología de la cátedra. Después, los que <b>vieron en clase pero no usaste</b> — arrancando por el que más conviene sumar. Cada uno: qué hace, gráfico, y veredicto de si entra en Puppies.</p>
+    <div class="meta">Basado en tus clases · Strategy/Adapter (cl.5) · State (cl.11) · Observer (cl.12) · Composite/Decorator (cl.10–13) · Factory/Abstract Factory (cl.13) · ejemplo guía de cátedra: <b>Magic Café</b></div>
+
+    <nav class="map">
+      <a href="#leer"><span class="k">00 · base</span><span class="n">Cómo leer el UML</span><span class="d">Flechas y rombos</span></a>
+      <a href="#strategy"><span class="k">P1 · usado</span><span class="n">Strategy</span><span class="d">Exportar · notificar</span></a>
+      <a href="#adapter"><span class="k">P1 · usado</span><span class="n">Adapter</span><span class="d">Autenticación externa</span></a>
+      <a href="#observer"><span class="k">P1 · usado</span><span class="n">Observer</span><span class="d">Alarma → veterinarios</span></a>
+      <a href="#state"><span class="k">P1 · usado</span><span class="n">State</span><span class="d">Estado del animal</span></a>
+      <a href="#mapa"><span class="k">P2 · mapa</span><span class="n">Visto vs Usado</span><span class="d">La tabla de la cursada</span></a>
+      <a href="#factory"><span class="k">P2 · ★ entra</span><span class="n">Factory</span><span class="d">Crear AccionAlarma</span></a>
+      <a href="#composite"><span class="k">P2 · tal vez</span><span class="n">Composite</span><span class="d">Rutinas de acciones</span></a>
+      <a href="#decorator"><span class="k">P2 · no</span><span class="n">Decorator</span><span class="d">Extras dinámicos</span></a>
+      <a href="#abstract"><span class="k">P2 · no</span><span class="n">Abstract Factory</span><span class="d">Familias de objetos</span></a>
+      <a href="#singleton"><span class="k">P2 · puntual</span><span class="n">Singleton</span><span class="d">Instancia única</span></a>
+      <a href="#mvc"><span class="k">P2 · fuera</span><span class="n">MVC</span><span class="d">Arquitectura</span></a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== 00 LEER ===== -->
+<section id="leer">
+  <div class="wrap">
+    <span class="tag">00 · Notación</span>
+    <h2>Cómo leer los diagramas</h2>
+    <p class="sub">Mismo lenguaje que en draw.io. La línea entre dos clases <em>es información</em>: dice qué relación hay.</p>
+    <div class="fig">
+      <svg viewBox="0 0 920 150" role="img" aria-label="Leyenda UML">
+        <defs>
+          <marker id="lg-tri" markerWidth="16" markerHeight="14" refX="13" refY="7" orient="auto"><path d="M1,1 L14,7 L1,13 Z" fill="#fff" stroke="#16203A" stroke-width="1.3"/></marker>
+          <marker id="lg-open" markerWidth="14" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#16203A" stroke-width="1.3"/></marker>
+          <marker id="lg-dia-open" markerWidth="22" markerHeight="14" refX="19" refY="7" orient="auto"><path d="M2,7 L10,2 L18,7 L10,12 Z" fill="#fff" stroke="#16203A" stroke-width="1.3"/></marker>
+          <marker id="lg-dia-fill" markerWidth="22" markerHeight="14" refX="19" refY="7" orient="auto"><path d="M2,7 L10,2 L18,7 L10,12 Z" fill="#16203A" stroke="#16203A" stroke-width="1.3"/></marker>
+        </defs>
+        <g font-family="JetBrains Mono, monospace" font-size="12.5" fill="#475068">
+          <line x1="10" y1="30" x2="150" y2="30" stroke="#16203A" stroke-width="1.6" marker-end="url(#lg-tri)"/>
+          <text x="10" y="52">Herencia</text><text x="10" y="68">extends (triángulo hueco)</text>
+          <line x1="250" y1="30" x2="390" y2="30" stroke="#16203A" stroke-width="1.6" stroke-dasharray="6 5" marker-end="url(#lg-tri)"/>
+          <text x="250" y="52">Implementa</text><text x="250" y="68">implements (punteada)</text>
+          <line x1="490" y1="30" x2="630" y2="30" stroke="#16203A" stroke-width="1.6" marker-end="url(#lg-open)"/>
+          <text x="490" y="52">Asociación</text><text x="490" y="68">"conoce / usa"</text>
+          <line x1="730" y1="30" x2="870" y2="30" stroke="#16203A" stroke-width="1.6" stroke-dasharray="6 5" marker-end="url(#lg-open)"/>
+          <text x="730" y="52">Dependencia</text><text x="730" y="68">uso temporal / «crea»</text>
+          <line x1="150" y1="110" x2="10" y2="110" stroke="#16203A" stroke-width="1.6" marker-start="url(#lg-dia-open)"/>
+          <text x="170" y="106">Agregación</text><text x="170" y="122">todo–parte débil (rombo hueco)</text>
+          <line x1="600" y1="110" x2="460" y2="110" stroke="#16203A" stroke-width="1.6" marker-start="url(#lg-dia-fill)"/>
+          <text x="620" y="106">Composición</text><text x="620" y="122">todo–parte fuerte (rombo lleno)</text>
+        </g>
+      </svg>
+      <div class="cap">El rombo va del lado del "todo". El triángulo, del lado del padre o la interfaz.</div>
+    </div>
+    <div class="legend">
+      <span><b style="color:#b85450">rosa</b> «interface»</span>
+      <span><b style="color:#4a7a48">verde</b> concreta</span>
+      <span><b style="color:#3a6ea5">azul</b> abstracta</span>
+      <span><b style="color:#caa83a">amarillo</b> «enum»</span>
+      <span><b style="color:#8a5a9a">lila</b> dominio</span>
+      <span><b style="color:#777">gris</b> externo (no modificable)</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PARTE 1 ============================ -->
+<div class="wrap">
+  <div class="secthead">
+    <span class="big">Parte 1</span>
+    <p>Los patrones que <b>ya están en tu diagrama</b>. Acá afiné las explicaciones con la terminología que usa la cátedra (Contexto / interfaz Strategy / estrategias concretas, etc.).</p>
+  </div>
+</div>
+
+<!-- ===== STRATEGY ===== -->
+<section id="strategy">
+  <div class="wrap">
+    <span class="tag">01 · Comportamiento</span>
+    <h2>Strategy</h2>
+    <p class="sub">Encapsula distintas formas (algoritmos) de resolver el mismo problema en clases distintas, intercambiables en runtime.</p>
+    <div class="grid2">
+      <div>
+        <h3>Componentes (cátedra)</h3>
+        <ul class="tight">
+          <li><b>Interfaz Strategy:</b> define la firma del algoritmo.</li>
+          <li><b>Estrategias concretas:</b> cada implementación real del algoritmo.</li>
+          <li><b>Contexto:</b> tiene referencia a la <em>interfaz</em> y delega en ella de forma polimórfica.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cuándo / cómo justificarlo</h3>
+        <ul class="tight">
+          <li>Hay <b>varias maneras</b> de hacer la misma acción.</li>
+          <li>Querés <b>agregar variantes sin tocar</b> el contexto (OCP).</li>
+          <li>Querés <b>elegir/cambiar</b> el comportamiento en ejecución.</li>
+        </ul>
+        <div class="note warn"><span class="lbl">No confundir</span>Strategy vs State: mismo UML. En Strategy la variante <b>la elige el cliente</b> y es estable; en State <b>el objeto se cambia a sí mismo</b>.</div>
+      </div>
+    </div>
+
+    <h3>Aplicado en Puppies — exportar la ficha</h3>
+    <div class="fig">
+      <svg viewBox="0 0 760 330" role="img" aria-label="Strategy exportación">
+        <defs><marker id="se-tri" markerWidth="16" markerHeight="14" refX="13" refY="7" orient="auto"><path d="M1,1 L14,7 L1,13 Z" fill="#fff" stroke="#16203A" stroke-width="1.3"/></marker><marker id="se-open" markerWidth="14" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#16203A" stroke-width="1.3"/></marker></defs>
+        <rect x="270" y="14" width="240" height="90" rx="3" fill="var(--uml-iface)" stroke="var(--uml-iface-stroke)" stroke-width="1.4"/>
+        <text x="390" y="32" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-style="italic" fill="#7a3a38">«interface»</text>
+        <text x="390" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700">IExportadorStrategy</text>
+        <line x1="270" y1="58" x2="510" y2="58" stroke="var(--uml-iface-stroke)"/>
+        <text x="280" y="76" font-family="Inter,sans-serif" font-size="12">+ exportar(ficha)</text>
+        <text x="280" y="94" font-family="Inter,sans-serif" font-size="12">+ getFormato(): String</text>
+        <rect x="20" y="155" width="230" height="98" rx="3" fill="var(--uml-ctx)" stroke="var(--uml-ctx-stroke)" stroke-width="1.3"/>
+        <text x="135" y="175" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700">FichaMedica</text>
+        <line x1="20" y1="185" x2="250" y2="185" stroke="var(--uml-ctx-stroke)"/>
+        <text x="30" y="203" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#2c3552">- exportador: IExportadorStrategy</text>
+        <line x1="20" y1="213" x2="250" y2="213" stroke="var(--uml-ctx-stroke)"/>
+        <text x="30" y="231" font-family="Inter,sans-serif" font-size="12">+ exportar()</text>
+        <text x="30" y="247" font-family="Inter,sans-serif" font-size="12">+ setExportador(e)</text>
+        <rect x="280" y="252" width="190" height="60" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.3"/>
+        <text x="375" y="274" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700">ExportadorPDF</text>
+        <line x1="280" y1="284" x2="470" y2="284" stroke="var(--uml-concrete-stroke)"/>
+        <text x="290" y="301" font-family="Inter,sans-serif" font-size="11.5">+ exportar(ficha)</text>
+        <rect x="510" y="252" width="200" height="60" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.3"/>
+        <text x="610" y="274" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700">ExportadorExcel</text>
+        <line x1="510" y1="284" x2="710" y2="284" stroke="var(--uml-concrete-stroke)"/>
+        <text x="520" y="301" font-family="Inter,sans-serif" font-size="11.5">+ exportar(ficha)</text>
+        <line x1="250" y1="180" x2="268" y2="78" stroke="#16203A" stroke-width="1.5" marker-end="url(#se-open)"/>
+        <line x1="375" y1="252" x2="390" y2="106" stroke="#16203A" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#se-tri)"/>
+        <line x1="610" y1="252" x2="420" y2="106" stroke="#16203A" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#se-tri)"/>
+      </svg>
+      <div class="cap">"Exportar de forma escalable y ágil" → cada formato es una estrategia. Sumar Word = una clase más.</div>
+    </div>
+    <div class="note"><span class="lbl">Lo usaste dos veces</span>El segundo Strategy es el de <b>recordatorios</b>: <code>INotificador</code> + <code>NotificadorSMS/WhatsApp/Email</code>. Misma estructura. Ojo: este es justo el ejercicio "Módulo de envío de notificaciones" de la cátedra, donde Strategy elige el canal y, si los canales fueran servicios externos, un <b>Adapter</b> los envuelve por debajo.</div>
+  </div>
+</section>
+
+<!-- ===== ADAPTER ===== -->
+<section id="adapter">
+  <div class="wrap">
+    <span class="tag struct">02 · Estructural</span>
+    <h2>Adapter</h2>
+    <p class="sub">Encapsula las llamadas a una clase externa (incompatible o que no podés tocar) dentro de otra que concuerda con la interfaz que tu dominio espera.</p>
+    <div class="grid2">
+      <div>
+        <h3>Componentes (cátedra)</h3>
+        <ul class="tight">
+          <li><b>Interfaz Adapter:</b> la firma "puente" que tu dominio usa.</li>
+          <li><b>Adapter concreto:</b> implementa esa interfaz y guarda/usa la clase adaptada; llama a sus métodos reales.</li>
+          <li><b>Clase adaptada:</b> externa, de firma incompatible, <em>no se toca</em>.</li>
+          <li><b>Cliente:</b> conoce solo la interfaz Adapter.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Cuándo / cómo justificarlo</h3>
+        <ul class="tight">
+          <li>Integrás un <b>servicio externo</b> que no controlás.</li>
+          <li>El problema es de <b>incompatibilidad de interfaz</b>, no de algoritmo.</li>
+          <li>Si el externo cambia, <b>solo tocás el adaptador</b>.</li>
+        </ul>
+        <div class="note warn"><span class="lbl">No confundir</span>Strategy = elegir entre comportamientos <b>tuyos</b>. Adapter = compatibilizar con algo <b>ajeno</b>. ¿Hay una clase externa/no modificable? Adapter.</div>
+      </div>
+    </div>
+    <h3>Aplicado en Puppies — autenticación externa</h3>
+    <div class="fig">
+      <svg viewBox="0 0 780 330" role="img" aria-label="Adapter autenticación">
+        <defs><marker id="a-tri" markerWidth="16" markerHeight="14" refX="13" refY="7" orient="auto"><path d="M1,1 L14,7 L1,13 Z" fill="#fff" stroke="#16203A" stroke-width="1.3"/></marker><marker id="a-open" markerWidth="14" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#16203A" stroke-width="1.3"/></marker></defs>
+        <rect x="290" y="14" width="220" height="74" rx="3" fill="var(--uml-iface)" stroke="var(--uml-iface-stroke)" stroke-width="1.4"/>
+        <text x="400" y="32" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-style="italic" fill="#7a3a38">«interface»</text>
+        <text x="400" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700">IAutenticacion</text>
+        <line x1="290" y1="58" x2="510" y2="58" stroke="var(--uml-iface-stroke)"/>
+        <text x="300" y="78" font-family="Inter,sans-serif" font-size="12">+ obtenerUsuario(id): Usuario</text>
+        <rect x="30" y="30" width="180" height="46" rx="3" fill="#fff" stroke="#16203A" stroke-width="1.3"/>
+        <text x="120" y="58" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700">Mi sistema</text>
+        <rect x="270" y="160" width="260" height="92" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.3"/>
+        <text x="400" y="180" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700">AdaptadorAutenticacion</text>
+        <line x1="270" y1="190" x2="530" y2="190" stroke="var(--uml-concrete-stroke)"/>
+        <text x="280" y="208" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#2c3552">- servicio: AuthServiceExterno</text>
+        <line x1="270" y1="218" x2="530" y2="218" stroke="var(--uml-concrete-stroke)"/>
+        <text x="280" y="237" font-family="Inter,sans-serif" font-size="12">+ obtenerUsuario(id): Usuario</text>
+        <rect x="560" y="160" width="210" height="92" rx="3" fill="var(--uml-ext)" stroke="var(--uml-ext-stroke)" stroke-width="1.3"/>
+        <text x="665" y="180" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700">AuthServiceExterno</text>
+        <text x="665" y="196" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" font-style="italic" fill="#777">(no modificable)</text>
+        <line x1="560" y1="206" x2="770" y2="206" stroke="var(--uml-ext-stroke)"/>
+        <text x="570" y="226" font-family="Inter,sans-serif" font-size="11.5">+ getUserData(uid): UserDTO</text>
+        <line x1="210" y1="52" x2="288" y2="52" stroke="#16203A" stroke-width="1.5" marker-end="url(#a-open)"/>
+        <line x1="400" y1="160" x2="400" y2="90" stroke="#16203A" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#a-tri)"/>
+        <text x="408" y="128" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#475068">implementa</text>
+        <line x1="530" y1="206" x2="558" y2="206" stroke="#16203A" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#a-open)"/>
+        <text x="528" y="198" font-family="JetBrains Mono,monospace" font-size="10" fill="#475068">traduce ▸</text>
+      </svg>
+      <div class="cap">Tu sistema habla <b>IAutenticacion</b>. El adaptador traduce a la API gris. Si el externo cambia, solo tocás el adaptador.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OBSERVER ===== -->
+<section id="observer">
+  <div class="wrap">
+    <span class="tag">03 · Comportamiento</span>
+    <h2>Observer</h2>
+    <p class="sub">Notifica a los interesados de un sujeto los eventos que le ocurren, para que actúen en consecuencia. Desacopla la acción del evento que la dispara.</p>
+    <div class="grid2">
+      <div>
+        <h3>Qué hace (cátedra)</h3>
+        <p>Se sugiere cuando <b>hay que avisar a algunos interesados</b> de un objeto sobre un evento y <em>no importa saber quiénes son ni cuántos</em>. El sujeto mantiene una lista de observers genéricos y los notifica a todos.</p>
+      </div>
+      <div>
+        <h3>Por qué encaja en Puppies</h3>
+        <p>El enunciado: la alarma genera alerta <b>para todos los veterinarios</b> y <b>cualquiera</b> la atiende. Es "un sujeto, varios observers". Por eso le gana a un loop manual.</p>
+        <div class="note"><span class="lbl">Dato de la cátedra</span>En Magic Café combinan <b>State + Observer</b>: el Pedido cambia de estado y <em>ahí</em> publica el evento a los observers. Mismo espíritu que tu alarma.</div>
+      </div>
+    </div>
+    <h3>Aplicado en Puppies — la alarma avisa a los veterinarios</h3>
+    <div class="fig">
+      <svg viewBox="0 0 760 330" role="img" aria-label="Observer alarmas">
+        <defs><marker id="o-tri" markerWidth="16" markerHeight="14" refX="13" refY="7" orient="auto"><path d="M1,1 L14,7 L1,13 Z" fill="#fff" stroke="#16203A" stroke-width="1.3"/></marker><marker id="o-open" markerWidth="14" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#16203A" stroke-width="1.3"/></marker></defs>
+        <rect x="30" y="100" width="250" height="120" rx="3" fill="#6d8764" stroke="#3A5431" stroke-width="1.3"/>
+        <text x="155" y="122" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700" fill="#fff">Alarma · sujeto</text>
+        <line x1="30" y1="132" x2="280" y2="132" stroke="#cfe0c8"/>
+        <text x="40" y="150" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#eef5ea">- observers: List&lt;IVetObserver&gt;</text>
+        <line x1="30" y1="160" x2="280" y2="160" stroke="#cfe0c8"/>
+        <text x="40" y="179" font-family="Inter,sans-serif" font-size="12" fill="#fff">+ disparar()</text>
+        <text x="40" y="196" font-family="Inter,sans-serif" font-size="12" fill="#fff">+ subscribir(o)</text>
+        <text x="40" y="213" font-family="Inter,sans-serif" font-size="12" fill="#fff">+ deSubscribir(o)</text>
+        <rect x="430" y="40" width="290" height="74" rx="3" fill="#6d8764" stroke="#3A5431" stroke-width="1.4"/>
+        <text x="575" y="58" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-style="italic" fill="#dce9d4">«interface»</text>
+        <text x="575" y="74" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700" fill="#fff">IVeterinarioObserver</text>
+        <line x1="430" y1="84" x2="720" y2="84" stroke="#cfe0c8"/>
+        <text x="440" y="103" font-family="Inter,sans-serif" font-size="12" fill="#fff">+ notificar(alarma: Alarma)</text>
+        <rect x="450" y="200" width="250" height="74" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.3"/>
+        <text x="575" y="220" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700">Veterinario</text>
+        <line x1="450" y1="230" x2="700" y2="230" stroke="var(--uml-concrete-stroke)"/>
+        <text x="460" y="249" font-family="Inter,sans-serif" font-size="12">+ notificar(alarma)</text>
+        <text x="460" y="266" font-family="Inter,sans-serif" font-size="12">+ atenderAlarma()</text>
+        <line x1="280" y1="135" x2="428" y2="84" stroke="#16203A" stroke-width="1.6" marker-end="url(#o-open)"/>
+        <text x="300" y="104" font-family="JetBrains Mono,monospace" font-size="11" fill="#475068">notifica a 1..*</text>
+        <line x1="575" y1="200" x2="575" y2="116" stroke="#16203A" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#o-tri)"/>
+        <text x="583" y="160" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#475068">implementa</text>
+      </svg>
+      <div class="cap">La Alarma conoce la interfaz, no veterinarios concretos. Al dispararse recorre su lista y notifica a todos.</div>
+    </div>
+    <div class="note warn"><span class="lbl">Para mejorar</span>Tenés <code>Veterinario</code> duplicado. Debe ser una sola clase: <code>Veterinario extends Usuario implements IVeterinarioObserver</code>.</div>
+  </div>
+</section>
+
+<!-- ===== STATE ===== -->
+<section id="state">
+  <div class="wrap">
+    <span class="tag">04 · Comportamiento</span>
+    <h2>State</h2>
+    <p class="sub">Genera una clase por cada estado posible de un objeto y define las transiciones. El objeto delega su comportamiento en el estado actual.</p>
+    <div class="grid2">
+      <div>
+        <h3>Qué hace (cátedra)</h3>
+        <p>Se usa cuando el comportamiento <b>depende del estado</b> y un método se llena de <code>if/switch</code> sobre atributos o enums. Como en el Pedido: pasa de "preguntar en qué estado estoy" a <b>delegar</b> en <code>estadoActual</code>.</p>
+      </div>
+      <div>
+        <h3>Cómo lo da la cátedra (clave)</h3>
+        <p>El contexto guarda los datos; <b>el estado decide la transición</b>: <code>estado.accion(this)</code> internamente llama a <code>contexto.cambiarEstado(new OtroEstado())</code>. Suele haber un <code>EstadoBase</code> abstracto que por defecto <em>prohíbe</em> todo, y cada estado habilita solo lo válido.</p>
+      </div>
+    </div>
+    <h3>Aplicado en Puppies — estado clínico del animal</h3>
+    <div class="fig">
+      <svg viewBox="0 0 780 340" role="img" aria-label="State animal">
+        <defs><marker id="st-tri" markerWidth="16" markerHeight="14" refX="13" refY="7" orient="auto"><path d="M1,1 L14,7 L1,13 Z" fill="#fff" stroke="#16203A" stroke-width="1.3"/></marker><marker id="st-open" markerWidth="14" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#16203A" stroke-width="1.3"/></marker></defs>
+        <rect x="290" y="14" width="200" height="70" rx="3" fill="var(--uml-iface)" stroke="var(--uml-iface-stroke)" stroke-width="1.4"/>
+        <text x="390" y="32" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-style="italic" fill="#7a3a38">«interface»</text>
+        <text x="390" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700">EstadoAnimal</text>
+        <line x1="290" y1="58" x2="490" y2="58" stroke="var(--uml-iface-stroke)"/>
+        <text x="300" y="77" font-family="Inter,sans-serif" font-size="12">+ esAdoptable(): boolean</text>
+        <rect x="20" y="140" width="220" height="92" rx="3" fill="var(--uml-ctx)" stroke="var(--uml-ctx-stroke)" stroke-width="1.3"/>
+        <text x="130" y="160" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700">Animal</text>
+        <line x1="20" y1="170" x2="240" y2="170" stroke="var(--uml-ctx-stroke)"/>
+        <text x="30" y="188" font-family="JetBrains Mono,monospace" font-size="11" fill="#2c3552">- estado: EstadoAnimal</text>
+        <line x1="20" y1="198" x2="240" y2="198" stroke="var(--uml-ctx-stroke)"/>
+        <text x="30" y="217" font-family="Inter,sans-serif" font-size="12">+ esAdoptable()</text>
+        <rect x="265" y="240" width="155" height="62" rx="3" fill="var(--uml-iface)" stroke="var(--uml-iface-stroke)" stroke-width="1.2"/>
+        <text x="342" y="261" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700">Sano</text>
+        <line x1="265" y1="270" x2="420" y2="270" stroke="var(--uml-iface-stroke)"/>
+        <text x="275" y="289" font-family="Inter,sans-serif" font-size="11.5">esAdoptable(){true}</text>
+        <rect x="435" y="240" width="180" height="62" rx="3" fill="var(--uml-iface)" stroke="var(--uml-iface-stroke)" stroke-width="1.2"/>
+        <text x="525" y="261" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700">EnTratamiento</text>
+        <line x1="435" y1="270" x2="615" y2="270" stroke="var(--uml-iface-stroke)"/>
+        <text x="445" y="289" font-family="Inter,sans-serif" font-size="11.5">esAdoptable(){false}</text>
+        <rect x="630" y="240" width="140" height="62" rx="3" fill="var(--uml-iface)" stroke="var(--uml-iface-stroke)" stroke-width="1.2"/>
+        <text x="700" y="261" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700">Recuperado</text>
+        <line x1="630" y1="270" x2="770" y2="270" stroke="var(--uml-iface-stroke)"/>
+        <text x="640" y="289" font-family="Inter,sans-serif" font-size="11.5">esAdoptable(){true}</text>
+        <line x1="240" y1="160" x2="288" y2="60" stroke="#16203A" stroke-width="1.5" marker-end="url(#st-open)"/>
+        <text x="238" y="115" font-family="JetBrains Mono,monospace" font-size="11" fill="#475068">delega ▸</text>
+        <line x1="342" y1="240" x2="385" y2="86" stroke="#16203A" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#st-tri)"/>
+        <line x1="525" y1="240" x2="400" y2="86" stroke="#16203A" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#st-tri)"/>
+        <line x1="700" y1="240" x2="420" y2="86" stroke="#16203A" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#st-tri)"/>
+      </svg>
+      <div class="cap">"El animal en tratamiento no se adopta" se resuelve por estado, no por <code>if</code>.</div>
+    </div>
+    <div class="note warn"><span class="lbl">Lo que falta (te lo van a preguntar)</span>Igual que en el Pedido de la cátedra, faltan las <b>transiciones</b>: ¿qué método pasa al animal de <code>EnTratamiento</code> a <code>Recuperado</code>? En el modelo de cátedra eso vive dentro del estado (<code>finalizarTratamiento()</code> → <code>cambiarEstado(new Recuperado())</code>). Sin eso, el State queda a medias.</div>
+    <div class="note"><span class="lbl">Detalle fino</span>"Puede adoptarse" depende de <b>tipo</b> (salvaje nunca) y <b>estado</b> (en tratamiento no). Combinalos: <code>esAdoptable() = tipoPermiteAdopcion() &amp;&amp; estado.esAdoptable()</code>. Tipo → polimorfismo; momento clínico → State.</div>
+  </div>
+</section>
+
+<!-- ============================ PARTE 2 ============================ -->
+<div class="wrap">
+  <div class="secthead">
+    <span class="big green">Parte 2</span>
+    <p>Patrones que <b>vieron en la cursada pero no usaste</b> en el TP. Ordenados por cuánto convienen a Puppies: arranca el que <b>deberías sumar</b>, después los condicionales, y al final los que no aplican (con el porqué).</p>
+  </div>
+</div>
+
+<!-- ===== MAPA ===== -->
+<section id="mapa">
+  <div class="wrap">
+    <span class="tag arch">P2 · Panorama</span>
+    <h2>Visto en clase vs usado en el TP</h2>
+    <p class="sub">Según la clasificación de la cátedra y el ejemplo Magic Café, esto es lo que dieron desarrollado.</p>
+    <table class="tbl">
+      <tr><th style="width:24%">Patrón</th><th style="width:20%">Categoría</th><th style="width:28%">¿Visto en cursada?</th><th>¿En tu TP?</th></tr>
+      <tr><td>Strategy</td><td>Comportamiento</td><td class="y">Sí (cl.5)</td><td class="y">Sí ×2</td></tr>
+      <tr><td>Adapter</td><td>Estructural</td><td class="y">Sí (cl.5)</td><td class="y">Sí</td></tr>
+      <tr><td>State</td><td>Comportamiento</td><td class="y">Sí (cl.11)</td><td class="y">Sí</td></tr>
+      <tr><td>Observer</td><td>Comportamiento</td><td class="y">Sí (cl.12)</td><td class="y">Sí</td></tr>
+      <tr><td>Factory (Simple / Method)</td><td>Creacional</td><td class="y">Sí (cl.13)</td><td class="n">No · <b>conviene</b></td></tr>
+      <tr><td>Composite</td><td>Estructural</td><td class="y">Sí (cl.10/13)</td><td class="n">No · tal vez</td></tr>
+      <tr><td>Decorator</td><td>Estructural</td><td class="y">Sí (cl.10/13)</td><td class="n">No</td></tr>
+      <tr><td>Abstract Factory</td><td>Creacional</td><td class="y">Sí (cl.13)</td><td class="n">No</td></tr>
+      <tr><td>Singleton</td><td>Creacional</td><td class="y">Mencionado (cl.9)</td><td class="n">No</td></tr>
+      <tr><td>MVC</td><td>Arquitectura</td><td class="y">Sí (cl.5)</td><td class="n">Fuera de scope</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== FACTORY ===== -->
+<section id="factory">
+  <div class="wrap">
+    <span class="tag creac">P2 · Creacional · ★ el que conviene</span>
+    <h2>Factory <span style="font-weight:400;font-size:.6em;color:var(--ink-soft)">(Simple Factory / Factory Method)</span></h2>
+    <p class="sub">Encapsula en un único punto la creación de objetos que comparten una interfaz común, para no llenar el código de <code>new</code> y <code>switch</code>.</p>
+    <div class="grid2">
+      <div>
+        <h3>Tipos (cátedra)</h3>
+        <ul class="tight">
+          <li><b>Simple Factory:</b> una <em>clase</em> con un <code>switch</code> que devuelve el objeto correcto.</li>
+          <li><b>Factory Method:</b> un <em>método</em> (a veces en subclases) decide qué crear.</li>
+          <li><b>Abstract Factory:</b> familias completas (ver más abajo).</li>
+        </ul>
+      </div>
+      <div>
+        <div class="verdict yes">▲ ENTRA EN PUPPIES</div>
+        <p>Hoy tenés el enum <code>TipoAccion</code> <em>y</em> la jerarquía <code>AccionAlarma</code> (ControlParasitos, Vacunar…). Eso es redundante. Una <b>Simple Factory</b> recibe el <code>TipoAccion</code> y devuelve la <code>AccionAlarma</code> concreta: el enum pasa a tener un propósito real (ser la entrada de la fábrica) y centralizás la creación en un solo lugar.</p>
+      </div>
+    </div>
+    <h3>Cómo quedaría en Puppies</h3>
+    <div class="fig">
+      <svg viewBox="0 0 780 320" role="img" aria-label="Factory de acciones">
+        <defs><marker id="f-tri" markerWidth="16" markerHeight="14" refX="13" refY="7" orient="auto"><path d="M1,1 L14,7 L1,13 Z" fill="#fff" stroke="#16203A" stroke-width="1.3"/></marker><marker id="f-open" markerWidth="14" markerHeight="12" refX="9" refY="6" orient="auto"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#16203A" stroke-width="1.3"/></marker></defs>
+        <!-- enum -->
+        <rect x="20" y="30" width="170" height="70" rx="3" fill="var(--uml-enum)" stroke="var(--uml-enum-stroke)" stroke-width="1.3"/>
+        <text x="105" y="50" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-style="italic" fill="#8a6a1a">«enum»</text>
+        <text x="105" y="66" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700">TipoAccion</text>
+        <line x1="20" y1="74" x2="190" y2="74" stroke="var(--uml-enum-stroke)"/>
+        <text x="30" y="91" font-family="Inter,sans-serif" font-size="11">VACUNA · NUTRICION…</text>
+        <!-- factory -->
+        <rect x="240" y="20" width="250" height="90" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.3"/>
+        <text x="365" y="40" text-anchor="middle" font-family="Inter,sans-serif" font-size="14" font-weight="700">FabricaAcciones</text>
+        <line x1="240" y1="50" x2="490" y2="50" stroke="var(--uml-concrete-stroke)"/>
+        <text x="250" y="70" font-family="Inter,sans-serif" font-size="11.5">+ crear(t: TipoAccion):</text>
+        <text x="262" y="86" font-family="Inter,sans-serif" font-size="11.5">AccionAlarma</text>
+        <!-- abstract -->
+        <rect x="540" y="20" width="220" height="90" rx="3" fill="var(--uml-abstract)" stroke="var(--uml-abstract-stroke)" stroke-width="1.3"/>
+        <text x="650" y="40" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-style="italic" fill="#2a5a8a">«abstract»</text>
+        <text x="650" y="56" text-anchor="middle" font-family="Inter,sans-serif" font-size="13.5" font-weight="700">AccionAlarma</text>
+        <line x1="540" y1="66" x2="760" y2="66" stroke="var(--uml-abstract-stroke)"/>
+        <text x="550" y="85" font-family="Inter,sans-serif" font-size="11.5" font-style="italic">+ ejecutar()</text>
+        <!-- concretes -->
+        <g font-family="Inter,sans-serif" font-size="11.5" font-weight="600">
+          <rect x="300" y="230" width="100" height="48" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.2"/><text x="350" y="258" text-anchor="middle">Vacunar</text>
+          <rect x="410" y="230" width="150" height="48" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.2"/><text x="485" y="252" text-anchor="middle">Control</text><text x="485" y="268" text-anchor="middle">Parasitos</text>
+          <rect x="570" y="230" width="160" height="48" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.2"/><text x="650" y="252" text-anchor="middle">Chequeo</text><text x="650" y="268" text-anchor="middle">Medico…</text>
+        </g>
+        <!-- edges -->
+        <line x1="190" y1="65" x2="238" y2="65" stroke="#16203A" stroke-width="1.5" marker-end="url(#f-open)"/>
+        <text x="192" y="58" font-family="JetBrains Mono,monospace" font-size="10" fill="#475068">entrada</text>
+        <line x1="490" y1="65" x2="538" y2="65" stroke="#16203A" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#f-open)"/>
+        <text x="492" y="58" font-family="JetBrains Mono,monospace" font-size="10" fill="#475068">«crea» ▸</text>
+        <line x1="350" y1="230" x2="630" y2="112" stroke="#16203A" stroke-width="1.3" marker-end="url(#f-tri)"/>
+        <line x1="485" y1="230" x2="640" y2="112" stroke="#16203A" stroke-width="1.3" marker-end="url(#f-tri)"/>
+        <line x1="650" y1="230" x2="655" y2="112" stroke="#16203A" stroke-width="1.3" marker-end="url(#f-tri)"/>
+      </svg>
+      <div class="cap">La fábrica es el único lugar que conoce las clases concretas. El resto del sistema pide acciones por <code>TipoAccion</code>.</div>
+    </div>
+    <div class="note ok"><span class="lbl">Por qué sumar puntos</span>Resuelve el bad smell que ya tenías (enum + jerarquía duplicada), aplica <b>Creator</b> y <b>Bajo Acoplamiento</b>, y es un creacional — mostrar uno de cada categoría (comportamiento, estructural, creacional) es justo lo que valoran. Un segundo lugar natural: una factory para <code>Animal</code> (Domestico vs Salvaje) según el tipo.</p></div>
+  </div>
+</section>
+
+<!-- ===== COMPOSITE ===== -->
+<section id="composite">
+  <div class="wrap">
+    <span class="tag struct">P2 · Estructural · condicional</span>
+    <h2>Composite</h2>
+    <p class="sub">Permite tratar igual a un objeto individual (hoja) y a un grupo de objetos (compuesto), trabajando contra una abstracción común.</p>
+    <div class="grid2">
+      <div>
+        <h3>Qué hace (cátedra)</h3>
+        <p>En Magic Café: <code>Producto</code> y <code>Combo</code> implementan <code>ItemVendible</code>; el <b>Combo contiene</b> una lista de items (incluso otros combos). Así <code>Pedido</code> vende "cualquier vendible sin if/else". Es la estructura <b>Componente → Hoja / Compuesto</b>.</p>
+      </div>
+      <div>
+        <div class="verdict maybe">◆ TAL VEZ, SI…</div>
+        <p>Entra <em>solo</em> si modelás <b>rutinas/planes</b> que agrupan acciones y se tratan como una acción más: una <code>RutinaDeControl</code> que contiene varias <code>AccionAlarma</code> (y hasta sub-rutinas), todas con <code>ejecutar()</code>. Si tus acciones son siempre sueltas, no lo fuerces.</p>
+      </div>
+    </div>
+    <div class="fig">
+      <svg viewBox="0 0 760 280" role="img" aria-label="Composite genérico aplicado">
+        <defs><marker id="c-tri" markerWidth="16" markerHeight="14" refX="13" refY="7" orient="auto"><path d="M1,1 L14,7 L1,13 Z" fill="#fff" stroke="#16203A" stroke-width="1.3"/></marker><marker id="c-dia" markerWidth="22" markerHeight="14" refX="3" refY="7" orient="auto"><path d="M2,7 L10,2 L18,7 L10,12 Z" fill="#16203A" stroke="#16203A" stroke-width="1.2"/></marker></defs>
+        <rect x="280" y="14" width="220" height="74" rx="3" fill="var(--uml-iface)" stroke="var(--uml-iface-stroke)" stroke-width="1.4"/>
+        <text x="390" y="32" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-style="italic" fill="#7a3a38">«interface»</text>
+        <text x="390" y="48" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700">AccionEjecutable</text>
+        <line x1="280" y1="58" x2="500" y2="58" stroke="var(--uml-iface-stroke)"/>
+        <text x="290" y="77" font-family="Inter,sans-serif" font-size="12">+ ejecutar()</text>
+        <!-- hoja -->
+        <rect x="60" y="180" width="230" height="70" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.3"/>
+        <text x="175" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700">Vacunar · ControlParasitos</text>
+        <text x="175" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#475068">(hojas)</text>
+        <line x1="60" y1="226" x2="290" y2="226" stroke="var(--uml-concrete-stroke)"/>
+        <text x="70" y="244" font-family="Inter,sans-serif" font-size="11.5">+ ejecutar()</text>
+        <!-- compuesto -->
+        <rect x="470" y="180" width="240" height="80" rx="3" fill="var(--uml-concrete)" stroke="var(--uml-concrete-stroke)" stroke-width="1.3"/>
+        <text x="590" y="200" text-anchor="middle" font-family="Inter,sans-serif" font-size="13" font-weight="700">RutinaDeControl</text>
+        <text x="590" y="216" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#475068">(compuesto)</text>
+        <line x1="470" y1="226" x2="710" y2="226" stroke="var(--uml-concrete-stroke)"/>
+        <text x="480" y="244" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#2c3552">- items: List&lt;AccionEjecutable&gt;</text>
+        <line x1="175" y1="180" x2="370" y2="90" stroke="#16203A" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#c-tri)"/>
+        <line x1="590" y1="180" x2="420" y2="90" stroke="#16203A" stroke-width="1.4" stroke-dasharray="6 5" marker-end="url(#c-tri)"/>
+        <line x1="590" y1="180" x2="510" y2="66" stroke="#16203A" stroke-width="1.5" marker-start="url(#c-dia)"/>
+        <text x="600" y="135" font-family="JetBrains Mono,monospace" font-size="10" fill="#475068">contiene 0..*</text>
+      </svg>
+      <div class="cap">El compuesto contiene componentes y también <em>es</em> un componente → recursión. Quien ejecuta no distingue hoja de grupo.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DECORATOR ===== -->
+<section id="decorator">
+  <div class="wrap">
+    <span class="tag struct">P2 · Estructural</span>
+    <h2>Decorator</h2>
+    <p class="sub">Agrega responsabilidades a un objeto <em>concreto</em> de forma dinámica, sin crear una subclase por cada combinación. Alternativa flexible a la herencia.</p>
+    <div class="grid2">
+      <div>
+        <h3>Qué hace (cátedra)</h3>
+        <p>En Magic Café, los <b>extras</b> (leche, crema, canela) son decorators que <b>envuelven</b> un <code>ItemVendible</code> y le suman precio/descripción, manteniendo Composite funcionando y aplicando Open/Closed. El decorator base implementa la misma interfaz y guarda el objeto envuelto.</p>
+      </div>
+      <div>
+        <div class="verdict no">● NO ENCAJA (por ahora)</div>
+        <p>En Puppies no hay un caso claro de "ir apilando agregados opcionales sobre un objeto". Forzarlo sería diseño de más. Tenelo como herramienta mental: si algún día aparecieran "adicionales acumulables" sobre una acción o una ficha, sería el candidato.</p>
+      </div>
+    </div>
+    <div class="note"><span class="lbl">Cómo distinguirlo</span>Decorator y Composite comparten la idea de "implementar la interfaz y contener a otro". Diferencia: Composite agrupa <b>muchos</b> para tratarlos como uno; Decorator <b>envuelve a uno</b> para sumarle capacidades.</div>
+  </div>
+</section>
+
+<!-- ===== ABSTRACT FACTORY ===== -->
+<section id="abstract">
+  <div class="wrap">
+    <span class="tag creac">P2 · Creacional</span>
+    <h2>Abstract Factory</h2>
+    <p class="sub">Provee una interfaz para crear <em>familias completas</em> de objetos relacionados y compatibles, sin acoplarse a clases concretas.</p>
+    <div class="grid2">
+      <div>
+        <h3>Qué hace (cátedra)</h3>
+        <p>En Magic Café: <code>MenuMagicoFactory</code> con <code>crearBebida()</code>, <code>crearPostre()</code>, etc. La <code>DesayunoFactory</code> garantiza que toda la familia (café + croissant + muffin) sea consistente. El Service pide "dame una familia" y no conoce las clases concretas.</p>
+      </div>
+      <div>
+        <div class="verdict no">● OVERKILL para Puppies</div>
+        <p>Tiene sentido cuando hay <b>varias familias de productos</b> que deben combinarse coherentemente. Puppies no tiene esa necesidad: una Simple Factory para crear acciones o animales alcanza y sobra. Saber la diferencia con Factory simple es lo importante para el parcial.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SINGLETON ===== -->
+<section id="singleton">
+  <div class="wrap">
+    <span class="tag creac">P2 · Creacional</span>
+    <h2>Singleton</h2>
+    <p class="sub">Garantiza que una clase tenga <em>una sola instancia</em> y un punto de acceso global a ella.</p>
+    <div class="grid2">
+      <div>
+        <h3>Dónde lo vieron</h3>
+        <p>En la clase de persistencia: el <code>EntityManagerFactory</code> se inicializa una única vez (Singleton) y de ahí salen muchos <code>EntityManager</code>. Es el caso de uso típico: recursos caros que conviene tener una sola vez.</p>
+      </div>
+      <div>
+        <div class="verdict maybe">◆ PUNTUAL</div>
+        <p>En Puppies podría aplicar a un repositorio o a una config global, pero <b>con cuidado</b>: se abusa y termina siendo un estado global difícil de testear. No es algo del modelo de dominio del TP; mencionalo solo si te lo piden.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MVC ===== -->
+<section id="mvc">
+  <div class="wrap">
+    <span class="tag arch">P2 · Arquitectura</span>
+    <h2>MVC (Model–View–Controller)</h2>
+    <p class="sub">Tan amplio que se considera arquitectura más que patrón. Separa el sistema en tres capas.</p>
+    <div class="grid2">
+      <div>
+        <h3>Las tres capas (cátedra)</h3>
+        <ul class="tight">
+          <li><b>Vista:</b> lo que el usuario ve; solo muestra datos y valida entradas básicas.</li>
+          <li><b>Controlador:</b> recibe acciones de la vista, las traduce, consulta al modelo y actualiza la vista.</li>
+          <li><b>Modelo:</b> lógica de negocio, reglas y datos; no sabe cómo se ve la pantalla.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="verdict no">● FUERA DEL SCOPE DEL TP</div>
+        <p>El TP pide la <b>capa de dominio</b> (el Modelo). Vista y Controlador quedan afuera. Por eso no ves controllers en tu diagrama, y está bien. Si te preguntan: tu diagrama <em>es</em> la M de MVC.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>Guía v2 · ADOO/PDS · TP Puppies.</b> Parte 1: lo que ya usás, afinado con el vocabulario de la cátedra. Parte 2: lo que vieron y no usaste, ordenado por aplicabilidad. La movida concreta que sale de acá: sumar una <b>Factory de acciones</b> y, de paso, limpiar el enum redundante.</p>
+    <p style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:12px">Usados: Strategy · Adapter · Observer · State &nbsp;|&nbsp; Vistos no usados: Factory · Composite · Decorator · Abstract Factory · Singleton · MVC</p>
+  </div>
+</footer>
 
 </body>
 </html>
